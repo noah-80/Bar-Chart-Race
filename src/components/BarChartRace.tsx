@@ -165,12 +165,19 @@ const BarChartRace: React.FC = () => {
       .style("font-family", "Almanach Test") // Default font for the numeric part
       .each(function (d) {
         const textElement = d3.select(this);
+
+        // Clear any existing tspans to avoid duplication
+        textElement.selectAll("tspan").remove();
+
+        // Add a tspan for the dollar sign
         textElement
-          .append("tspan") // Add a tspan for the dollar sign
+          .append("tspan")
           .text("$")
           .style("font-family", "Arial"); // Use Arial for the dollar sign
+
+        // Add a tspan for the numeric value
         textElement
-          .append("tspan") // Add a tspan for the numeric value
+          .append("tspan")
           .text(d.value.toFixed(2))
           .style("font-family", "Almanach Test"); // Use Almanach Test for the numeric value
       });
@@ -179,7 +186,25 @@ const BarChartRace: React.FC = () => {
       .transition()
       .duration(1000)
       .attr("x", (d) => xScale(d.value) - 5)
-      .attr("y", (d) => yScale(d.name)! + yScale.bandwidth() / 2);
+      .attr("y", (d) => yScale(d.name)! + yScale.bandwidth() / 2)
+      .each(function (d) {
+        const textElement = d3.select(this);
+
+        // Clear any existing tspans to avoid duplication
+        textElement.selectAll("tspan").remove();
+
+        // Add a tspan for the dollar sign
+        textElement
+          .append("tspan")
+          .text("$")
+          .style("font-family", "Arial"); // Use Arial for the dollar sign
+
+        // Add a tspan for the numeric value
+        textElement
+          .append("tspan")
+          .text(d.value.toFixed(2))
+          .style("font-family", "Almanach Test"); // Use Almanach Test for the numeric value
+      });
 
     salesLabels.exit().remove();
 
