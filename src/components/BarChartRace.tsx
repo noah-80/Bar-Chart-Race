@@ -162,15 +162,24 @@ const BarChartRace: React.FC = () => {
       .attr("text-anchor", "end")
       .attr("fill", "white")
       .style("font-size", "12px")
-      .style("font-family", "Almanach Test")
-      .text((d) => `$${d.value.toFixed(2)}`); // Display sales value
+      .style("font-family", "Almanach Test") // Default font for the numeric part
+      .each(function (d) {
+        const textElement = d3.select(this);
+        textElement
+          .append("tspan") // Add a tspan for the dollar sign
+          .text("$")
+          .style("font-family", "Arial"); // Use Arial for the dollar sign
+        textElement
+          .append("tspan") // Add a tspan for the numeric value
+          .text(d.value.toFixed(2))
+          .style("font-family", "Almanach Test"); // Use Almanach Test for the numeric value
+      });
 
     salesLabels
       .transition()
       .duration(1000)
       .attr("x", (d) => xScale(d.value) - 5)
-      .attr("y", (d) => yScale(d.name)! + yScale.bandwidth() / 2)
-      .text((d) => `$${d.value.toFixed(2)}`); // Update sales value during transition
+      .attr("y", (d) => yScale(d.name)! + yScale.bandwidth() / 2);
 
     salesLabels.exit().remove();
 
