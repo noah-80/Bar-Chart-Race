@@ -111,9 +111,9 @@ const BarChartRace: React.FC = () => {
       .attr("class", "bar")
       .attr("d", (d) => {
         const x = margin.left;
-        const y = yScale(d.name)!;
+        const y = yScale(d.name)! + 2; // Add padding to the top
         const barWidth = xScale(d.value) - margin.left;
-        const barHeight = yScale.bandwidth();
+        const barHeight = yScale.bandwidth() - 4; // Reduce height by 4 (2px padding on top and bottom)
 
         return `
           M${x},${y} 
@@ -132,9 +132,9 @@ const BarChartRace: React.FC = () => {
       .duration(1000)
       .attr("d", (d) => {
         const x = margin.left;
-        const y = yScale(d.name)!;
+        const y = yScale(d.name)! + 2; // Add padding to the top
         const barWidth = xScale(d.value) - margin.left;
-        const barHeight = yScale.bandwidth();
+        const barHeight = yScale.bandwidth() - 4; // Reduce height by 4 (2px padding on top and bottom)
 
         return `
           M${x},${y} 
