@@ -18,7 +18,7 @@ const data2022: DataPoint[] = [
 const data2023: DataPoint[] = [
   { name: "8e8 Thai Street Food", value: 8000.17 },
   { name: "Salpicon", value: 7834.0 },
-  { name: "Perro 1-10 Tacos", value: 6809.13 },
+  { name: "(+3) Perro 1-10 Tacos", value: 6809.13 },
   { name: "Aloha Fridays", value: 5775.88 },
   { name: "Smile Hotdog", value: 4914.29 },
 ];
@@ -35,7 +35,7 @@ const BarChartRace: React.FC = () => {
     "Dina’s Dumpling": "#f287b7",
     "Salpicon": "#a6b83a",
     "Smile Hotdog": "#f26324",
-    "Perro 1-10 Tacos": "#73524d",
+    "(+3) Perro 1-10 Tacos": "#73524d",
   };
 
   // Define image mapping for each food truck
@@ -43,7 +43,7 @@ const BarChartRace: React.FC = () => {
     "8e8 Thai Street Food": "image1.png",
     "Aloha Fridays": "image2.png",
     "Dina’s Dumpling": "image5.png",
-    "Perro 1-10 Tacos": "image9.png",
+    "(+3) Perro 1-10 Tacos": "image9.png",
     "Salpicon": "image11.png",
     "Smile Hotdog": "image12.png",
   };
@@ -68,12 +68,33 @@ const BarChartRace: React.FC = () => {
       .range([margin.top, height - margin.bottom])
       .padding(0.1);
 
-    const xAxis = d3.axisBottom(xScale).tickFormat((d) => `$${d / 1000}k`);
-    const yAxis = d3.axisLeft(yScale).tickSize(0); // Remove default ticks
+    const xAxis = d3.axisBottom(xScale).tickFormat((d) => {
+      return `$${d / 1000}k`;
+    });
 
     svg.select(".x-axis")
       .attr("transform", `translate(0, ${height - margin.bottom})`)
-      .call(xAxis as any);
+      .call(xAxis as any)
+      .selectAll("text")
+      .html(function () {
+        const text = d3.select(this).text();
+        return `<tspan style="font-family: Arial;">$</tspan>${text.slice(1)}`; // Replace the dollar sign with Arial
+      })
+      .style("font-family", "Almanach Test") // Use Almanach Test for the rest of the text
+      .style("font-size", "12px");
+
+    // Add X-axis title
+    svg.select(".x-axis-title").remove(); // Remove any existing title to avoid duplicates
+    svg.append("text")
+      .attr("class", "x-axis-title")
+      .attr("x", width / 2) // Center horizontally
+      .attr("y", height - margin.bottom + 40) // Add more space above the title
+      .attr("text-anchor", "middle") // Center the text
+      .style("font-size", "14px")
+      .style("font-family", "Almanach Test") // Use Almanach Test for the rest of the text
+      .html(`Average <tspan style="font-family: Arial;">$</tspan>/Visit`); // Use Arial for the dollar sign
+
+    const yAxis = d3.axisLeft(yScale).tickSize(0).tickFormat(() => ""); // Remove tick labels
 
     svg.select(".y-axis")
       .attr("transform", `translate(${margin.left}, 0)`)
@@ -134,21 +155,30 @@ const BarChartRace: React.FC = () => {
       .enter()
       .append("text")
       .attr("class", "sales-label")
-      .attr("x", (d) => xScale(d.value) - 5) // Position slightly to the left of the bar's right edge
+      .attr("x", (d) => xScale(d.value) - 5)
       .attr("y", (d) => yScale(d.name)! + yScale.bandwidth() / 2)
-      .attr("dy", "0.35em") // Center vertically
-      .attr("text-anchor", "end") // Align text to the right
-      .attr("fill", "white") // Ensure visibility inside the bar
-      .text((d) => `$${d.value.toFixed(2)}`) // Format the value
+      .attr("dy", "0.35em")
+      .attr("text-anchor", "end")
+      .attr("fill", "white")
       .style("font-size", "12px")
-      .style("font-family", "Almanach Test");
+      .style("font-family", "Almanach Test") // Set the default font to Almanach Test
+      .each(function (d) {
+        const textElement = d3.select(this);
+        textElement
+          .append("tspan") // Add a tspan for the dollar sign
+          .text("$")
+          .style("font-family", "Arial"); // Set the dollar sign to Arial
+        textElement
+          .append("tspan") // Add a tspan for the numeric value
+          .text(d.value.toFixed(2))
+          .style("font-family", "Almanach Test"); // Set the numeric value to Almanach Test
+      });
 
     salesLabels
       .transition()
       .duration(1000)
       .attr("x", (d) => xScale(d.value) - 5)
-      .attr("y", (d) => yScale(d.name)! + yScale.bandwidth() / 2)
-      .text((d) => `$${d.value.toFixed(2)}`);
+      .attr("y", (d) => yScale(d.name)! + yScale.bandwidth() / 2);
 
     salesLabels.exit().remove();
 
@@ -160,7 +190,7 @@ const BarChartRace: React.FC = () => {
       .append("image")
       .attr("class", "bar-image")
       .attr("x", (d) => xScale(d.value) + 10) // Position slightly to the right of the bar
-      .attr("y", (d) => yScale(d.name)!)
+      .attr("y", (d) => yScale(d.name)! + (yScale.bandwidth() - yScale.bandwidth() * 1.5) / 2) // Center vertically
       .attr("width", yScale.bandwidth() * 1.5) // Make images slightly larger
       .attr("height", yScale.bandwidth() * 1.5) // Make images slightly larger
       .attr("href", (d) => imageMapping[d.name]); // Set the image source
@@ -169,12 +199,36 @@ const BarChartRace: React.FC = () => {
       .transition()
       .duration(1000)
       .attr("x", (d) => xScale(d.value) + 10)
-      .attr("y", (d) => yScale(d.name)!)
+      .attr("y", (d) => yScale(d.name)! + (yScale.bandwidth() - yScale.bandwidth() * 1.5) / 2) // Center vertically
       .attr("width", yScale.bandwidth() * 1.5)
       .attr("height", yScale.bandwidth() * 1.5)
       .attr("href", (d) => imageMapping[d.name]);
 
     images.exit().remove();
+
+    // Add food truck names to the left of each bar
+    const names = svg.selectAll("text.name").data(currentData, (d: any) => d.name);
+
+    names
+      .enter()
+      .append("text")
+      .attr("class", "name")
+      .attr("x", margin.left - 10) // Position slightly to the left of the bars
+      .attr("y", (d) => yScale(d.name)! + yScale.bandwidth() / 2)
+      .attr("dy", "0.35em") // Center vertically
+      .attr("text-anchor", "end") // Align text to the end
+      .attr("fill", "black")
+      .text((d) => d.name)
+      .style("font-size", "12px")
+      .style("font-family", "Almanach Test");
+
+    names
+      .transition()
+      .duration(1000)
+      .attr("y", (d) => yScale(d.name)! + yScale.bandwidth() / 2) // Update vertical position
+      .text((d) => d.name);
+
+    names.exit().remove();
 
     // Update the chart title
     svg.select(".chart-title")
