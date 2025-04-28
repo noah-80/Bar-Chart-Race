@@ -17,9 +17,9 @@ const data2022: DataPoint[] = [
 
 const data2023: DataPoint[] = [
   { name: "8e8 Thai Street Food", value: 8000.17 },
-  { name: "Salpicon", value: 7834.0 },
+  { name: "(+2) Salpicon", value: 7834.0 },
   { name: "(+3) Perro 1-10 Tacos", value: 6809.13 },
-  { name: "Aloha Fridays", value: 5775.88 },
+  { name: "(-2) Aloha Fridays", value: 5775.88 },
   { name: "Smile Hotdog", value: 4914.29 },
 ];
 
@@ -35,18 +35,20 @@ const BarChartRace: React.FC = () => {
     "Dina’s Dumpling": "#f287b7",
     "Salpicon": "#a6b83a",
     "Smile Hotdog": "#f26324",
-    "(+3) Perro 1-10 Tacos": "#73524d",
+    "Perro 1-10 Tacos": "#73524d", // No prefix here
   };
 
-  // Define image mapping for each food truck
   const imageMapping: { [key: string]: string } = {
     "8e8 Thai Street Food": "image1.png",
     "Aloha Fridays": "image2.png",
     "Dina’s Dumpling": "image5.png",
-    "(+3) Perro 1-10 Tacos": "image9.png",
     "Salpicon": "image11.png",
     "Smile Hotdog": "image12.png",
+    "Perro 1-10 Tacos": "image9.png", // No prefix here
   };
+
+  // Helper function to strip prefixes
+  const stripPrefix = (name: string) => name.replace(/^\(\+?\d+\)\s|\(-\d+\)\s/, "");
 
   useEffect(() => {
     const svg = d3.select(svgRef.current);
@@ -55,7 +57,7 @@ const BarChartRace: React.FC = () => {
     const margin = { top: 50, right: 120, bottom: 50, left: 150 }; // Adjusted right margin for larger images
     const cornerRadius = 5; // Radius for top-right and bottom-right corners
 
-    svg.attr("viewBox", `0 0 ${width} ${height}`);
+    svg.attr("viewBox", `0 0 ${width} ${height}`); // Extend the height of the viewBox
 
     const xScale = d3
       .scaleLinear()
@@ -101,7 +103,7 @@ const BarChartRace: React.FC = () => {
       .call(yAxis as any);
 
     // Bind data to bars
-    const bars = svg.selectAll(".bar").data(currentData, (d: any) => d.name);
+    const bars = svg.selectAll(".bar").data(currentData, (d: any) => stripPrefix(d.name));
 
     bars
       .enter()
@@ -113,7 +115,6 @@ const BarChartRace: React.FC = () => {
         const barWidth = xScale(d.value) - margin.left;
         const barHeight = yScale.bandwidth();
 
-        // Create a path for a rectangle with rounded top-right and bottom-right corners
         return `
           M${x},${y} 
           h${barWidth - cornerRadius} 
@@ -124,7 +125,7 @@ const BarChartRace: React.FC = () => {
           z
         `;
       })
-      .attr("fill", (d) => colorMapping[d.name]); // Apply color based on the food truck name
+      .attr("fill", (d) => colorMapping[stripPrefix(d.name)]);
 
     bars
       .transition()
@@ -149,7 +150,7 @@ const BarChartRace: React.FC = () => {
     bars.exit().remove();
 
     // Add sales data inside each bar
-    const salesLabels = svg.selectAll(".sales-label").data(currentData, (d: any) => d.name);
+    const salesLabels = svg.selectAll(".sales-label").data(currentData, (d: any) => stripPrefix(d.name));
 
     salesLabels
       .enter()
@@ -161,53 +162,43 @@ const BarChartRace: React.FC = () => {
       .attr("text-anchor", "end")
       .attr("fill", "white")
       .style("font-size", "12px")
-      .style("font-family", "Almanach Test") // Set the default font to Almanach Test
-      .each(function (d) {
-        const textElement = d3.select(this);
-        textElement
-          .append("tspan") // Add a tspan for the dollar sign
-          .text("$")
-          .style("font-family", "Arial"); // Set the dollar sign to Arial
-        textElement
-          .append("tspan") // Add a tspan for the numeric value
-          .text(d.value.toFixed(2))
-          .style("font-family", "Almanach Test"); // Set the numeric value to Almanach Test
-      });
+      .style("font-family", "Almanach Test")
+      .text((d) => `$${d.value.toFixed(2)}`); // Display sales value
 
     salesLabels
       .transition()
       .duration(1000)
       .attr("x", (d) => xScale(d.value) - 5)
-      .attr("y", (d) => yScale(d.name)! + yScale.bandwidth() / 2);
+      .attr("y", (d) => yScale(d.name)! + yScale.bandwidth() / 2)
+      .text((d) => `$${d.value.toFixed(2)}`); // Update sales value during transition
 
     salesLabels.exit().remove();
 
-    // Add images to the right of each bar
-    const images = svg.selectAll(".bar-image").data(currentData, (d: any) => d.name);
+    // Bind data to images
+    const images = svg.selectAll(".bar-image").data(currentData, (d: any) => stripPrefix(d.name));
 
     images
       .enter()
       .append("image")
       .attr("class", "bar-image")
-      .attr("x", (d) => xScale(d.value) + 10) // Position slightly to the right of the bar
-      .attr("y", (d) => yScale(d.name)! + (yScale.bandwidth() - yScale.bandwidth() * 1.5) / 2) // Center vertically
-      .attr("width", yScale.bandwidth() * 1.5) // Make images slightly larger
-      .attr("height", yScale.bandwidth() * 1.5) // Make images slightly larger
-      .attr("href", (d) => imageMapping[d.name]); // Set the image source
+      .attr("x", (d) => xScale(d.value) + 10)
+      .attr("y", (d) => yScale(d.name)! + (yScale.bandwidth() - yScale.bandwidth() * 1.5) / 2)
+      .attr("width", yScale.bandwidth() * 1.5)
+      .attr("height", yScale.bandwidth() * 1.5)
+      .attr("href", (d) => imageMapping[stripPrefix(d.name)]);
 
     images
       .transition()
       .duration(1000)
       .attr("x", (d) => xScale(d.value) + 10)
-      .attr("y", (d) => yScale(d.name)! + (yScale.bandwidth() - yScale.bandwidth() * 1.5) / 2) // Center vertically
+      .attr("y", (d) => yScale(d.name)! + (yScale.bandwidth() - yScale.bandwidth() * 1.5) / 2)
       .attr("width", yScale.bandwidth() * 1.5)
-      .attr("height", yScale.bandwidth() * 1.5)
-      .attr("href", (d) => imageMapping[d.name]);
+      .attr("height", yScale.bandwidth() * 1.5);
 
     images.exit().remove();
 
-    // Add food truck names to the left of each bar
-    const names = svg.selectAll("text.name").data(currentData, (d: any) => d.name);
+    // Bind data to names
+    const names = svg.selectAll("text.name").data(currentData, (d: any) => d.name); // Use full name with prefix
 
     names
       .enter()
@@ -218,26 +209,35 @@ const BarChartRace: React.FC = () => {
       .attr("dy", "0.35em") // Center vertically
       .attr("text-anchor", "end") // Align text to the end
       .attr("fill", "black")
-      .text((d) => d.name)
+      .html((d) => {
+        if (d.name.includes("(+2)") || d.name.includes("(-2)") || d.name.includes("(+3)")) {
+          const [prefix, rest] = d.name.split(") ");
+          return `<tspan style="fill: ${prefix.includes("+") ? "#3CB371" : "#FF0000"};">${prefix})</tspan> ${rest}`;
+        }
+        return d.name; // Display the full name if no prefix is present
+      })
       .style("font-size", "12px")
       .style("font-family", "Almanach Test");
 
     names
       .transition()
       .duration(1000)
-      .attr("y", (d) => yScale(d.name)! + yScale.bandwidth() / 2) // Update vertical position
-      .text((d) => d.name);
+      .attr("y", (d) => yScale(d.name)! + yScale.bandwidth() / 2);
 
     names.exit().remove();
 
     // Update the chart title
     svg.select(".chart-title")
       .attr("x", width / 2)
-      .attr("y", margin.top / 2)
+      .attr("y", margin.top / 2) // Add 20px to create a gap below the title
       .attr("text-anchor", "middle")
       .style("font-size", "16px")
       .style("font-family", "Almanach Test")
-      .text(title);
+      .html(() => {
+        const [titleText, yearText] = title.split("\n"); // Split the title into two lines
+        return `<tspan x="${width / 2}" dy="0">${titleText}</tspan>
+                <tspan x="${width / 2}" dy="1.2em">${yearText}</tspan>`; // Add the year on a new line
+      });
   }, [currentData, title]);
 
   const handleScroll = () => {
