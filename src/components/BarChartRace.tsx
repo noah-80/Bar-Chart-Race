@@ -92,7 +92,7 @@ const BarChartRace: React.FC = () => {
       .attr("x", width / 2) // Center horizontally
       .attr("y", height - margin.bottom + 40) // Add more space above the title
       .attr("text-anchor", "middle") // Center the text
-      .style("font-size", "14px")
+      .style("font-size", "12px")
       .style("font-family", "Almanach Test") // Use Almanach Test for the rest of the text
       .html(`Average <tspan style="font-family: Arial;">$</tspan>/Visit`); // Use Arial for the dollar sign
 
@@ -111,9 +111,9 @@ const BarChartRace: React.FC = () => {
       .attr("class", "bar")
       .attr("d", (d) => {
         const x = margin.left;
-        const y = yScale(d.name)! + 2; // Add padding to the top
+        const y = yScale(d.name)! + 4; // Add padding to the top
         const barWidth = xScale(d.value) - margin.left;
-        const barHeight = yScale.bandwidth() - 4; // Reduce height by 4 (2px padding on top and bottom)
+        const barHeight = yScale.bandwidth() - 8; // Reduce height by 4 (2px padding on top and bottom)
 
         return `
           M${x},${y} 
@@ -132,9 +132,9 @@ const BarChartRace: React.FC = () => {
       .duration(1000)
       .attr("d", (d) => {
         const x = margin.left;
-        const y = yScale(d.name)! + 2; // Add padding to the top
+        const y = yScale(d.name)! + 4; // Add padding to the top
         const barWidth = xScale(d.value) - margin.left;
-        const barHeight = yScale.bandwidth() - 4; // Reduce height by 4 (2px padding on top and bottom)
+        const barHeight = yScale.bandwidth() - 8; // Reduce height by 4 (2px padding on top and bottom)
 
         return `
           M${x},${y} 
@@ -265,7 +265,7 @@ const BarChartRace: React.FC = () => {
       .attr("x", width / 2)
       .attr("y", margin.top / 2) // Add 20px to create a gap below the title
       .attr("text-anchor", "middle")
-      .style("font-size", "16px")
+      .style("font-size", "12px")
       .style("font-family", "Almanach Test")
       .html(() => {
         const [titleText, yearText] = title.split("\n"); // Split the title into two lines
