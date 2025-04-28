@@ -1,0 +1,14 @@
+@font-face {
+  font-family: 'almanach';
+  src: url('./fonts/almanach-medium.woff2') format('woff2'),
+       url('./fonts/almanach-medium.woff') format('woff'),
+       url('./fonts/almanach-medium.ttf') format('truetype');
+  font-weight: 500;
+  font-style: normal;
+}
+
+  body {
+    font-family: 'Almanach Test', sans-serif;
+  font-style: normal;
+  font-weight: 500;
+  }
